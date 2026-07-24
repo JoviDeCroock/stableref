@@ -1,0 +1,80 @@
+{
+  "name": "stableref",
+  "version": "0.1.0",
+  "description": "Proof-carrying referential stability for React and Preact.",
+  "keywords": [
+    "react",
+    "preact",
+    "typescript",
+    "hooks",
+    "memoization",
+    "referential-stability"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/JoviDeCroock/stableref#readme",
+  "bugs": {
+    "url": "https://github.com/JoviDeCroock/stableref/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JoviDeCroock/stableref.git"
+  },
+  "type": "module",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    },
+    "./react": {
+      "types": "./dist/react.d.mts",
+      "default": "./dist/react.mjs"
+    },
+    "./preact": {
+      "types": "./dist/preact.d.mts",
+      "default": "./dist/preact.mjs"
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "test": "pnpm run typecheck && pnpm run build && node --test test/*.test.mjs",
+    "check": "pnpm run test",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "pnpm run build && changeset publish",
+    "prepublishOnly": "pnpm run check"
+  },
+  "peerDependencies": {
+    "preact": ">=10.10.0",
+    "react": ">=18.0.0",
+    "typescript": ">=5.4.0"
+  },
+  "peerDependenciesMeta": {
+    "preact": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@changesets/changelog-github": "^0.6.0",
+    "@changesets/cli": "^2.30.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.0",
+    "preact": "^10.0.0",
+    "react": "^19.0.0",
+    "tsdown": "^0.21.10",
+    "typescript": "^6.0.0"
+  },
+  "packageManager": "pnpm@11.3.0"
+}

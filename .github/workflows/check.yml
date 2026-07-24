@@ -1,0 +1,38 @@
+name: check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  current:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+
+  minimum-supported:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install minimum supported peers
+        run: >-
+          pnpm add --save-dev --lockfile=false --ignore-scripts
+          typescript@5.4.5
+          react@18.0.0
+          @types/react@18.0.0
+          @types/scheduler@0.16.8
+          preact@10.10.0
+      - run: pnpm check
