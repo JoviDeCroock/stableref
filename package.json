@@ -1,6 +1,6 @@
 {
   "name": "stableref",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Proof-carrying referential stability for React and Preact.",
   "keywords": [
     "react",
