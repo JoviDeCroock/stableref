@@ -1,6 +1,6 @@
 import type * as Preact from "preact";
 import * as PreactHooks from "preact/hooks";
-import type { Stable } from "./core.js";
+import type { Stable, StableDeps } from "./core.js";
 import type { CheckedDeps } from "./strict-deps.js";
 
 type Dispatch<A> = (value: A) => void;
@@ -22,7 +22,7 @@ type StrictImperativeHandle = {
     create: () => R,
     inputs: undefined,
   ): void;
-  <T, R extends T, const D extends readonly unknown[]>(
+  <T, R extends T, const D extends readonly unknown[] = StableDeps>(
     ref: Preact.Ref<T>,
     create: () => R,
     inputs: CheckedDeps<D>,
@@ -31,7 +31,7 @@ type StrictImperativeHandle = {
 
 export const useMemo = PreactHooks.useMemo as <
   T,
-  const D extends readonly unknown[],
+  const D extends readonly unknown[] = StableDeps,
 >(
   factory: () => T,
   inputs: CheckedDeps<D>,
@@ -39,7 +39,7 @@ export const useMemo = PreactHooks.useMemo as <
 
 export const useCallback = PreactHooks.useCallback as <
   F extends (...args: any[]) => any,
-  const D extends readonly unknown[],
+  const D extends readonly unknown[] = StableDeps,
 >(
   callback: F,
   inputs: CheckedDeps<D>,
