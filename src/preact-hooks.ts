@@ -11,7 +11,7 @@ type StrictEffectHook = {
   (effect: EffectCallback, inputs: undefined): void;
   <const D extends readonly unknown[]>(
     effect: EffectCallback,
-    inputs: CheckedDeps<D>,
+    inputs: CheckedDeps<D> | undefined,
   ): void;
 };
 
@@ -25,7 +25,7 @@ type StrictImperativeHandle = {
   <T, R extends T, const D extends readonly unknown[]>(
     ref: Preact.Ref<T>,
     create: () => R,
-    inputs: CheckedDeps<D>,
+    inputs: CheckedDeps<D> | undefined,
   ): void;
 };
 

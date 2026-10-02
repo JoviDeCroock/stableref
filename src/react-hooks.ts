@@ -7,7 +7,7 @@ type StrictEffectHook = {
   (effect: React.EffectCallback, dependencies: undefined): void;
   <const D extends readonly unknown[]>(
     effect: React.EffectCallback,
-    dependencies: CheckedDeps<D>,
+    dependencies: CheckedDeps<D> | undefined,
   ): void;
 };
 
@@ -21,7 +21,7 @@ type StrictImperativeHandle = {
   <T, R extends T, const D extends readonly unknown[]>(
     ref: React.Ref<T> | undefined,
     init: () => R,
-    dependencies: CheckedDeps<D>,
+    dependencies: CheckedDeps<D> | undefined,
   ): void;
 };
 
