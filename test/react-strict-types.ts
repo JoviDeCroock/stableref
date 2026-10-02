@@ -101,3 +101,54 @@ expectType<Stable<Model>>(initialized);
 
 const ref = useRef<Model | null>(null);
 expectType<Stable<{ current: Model | null }>>(ref);
+ref.current = raw;
+ref.current = null;
+
+const initializedRef = useRef(raw);
+expectType<Model>(initializedRef.current);
+initializedRef.current = { id: 3 };
+useEffect(() => {}, [initializedRef]);
+// @ts-expect-error Only the ref object, not its mutable contents, is stable.
+expectType<Stable<Model>>(initializedRef.current);
+// @ts-expect-error Mutable ref contents are not proven-stable dependencies.
+useEffect(() => {}, [initializedRef.current]);
+// @ts-expect-error Non-null initialization does not add null.
+initializedRef.current = null;
+// @ts-expect-error Non-null initialization does not add undefined.
+initializedRef.current = undefined;
+
+const numberRef = useRef(0);
+expectType<number>(numberRef.current);
+numberRef.current = 1;
+
+const nullRef = useRef(null);
+expectType<null>(nullRef.current);
+nullRef.current = null;
+// @ts-expect-error Inferred null refs do not accept other values.
+nullRef.current = raw;
+
+const nullableRef = useRef<Model>(null);
+expectType<Model | null>(nullableRef.current);
+// @ts-expect-error Nullable initialization does not add undefined.
+nullableRef.current = undefined;
+
+const undefinedRef = useRef(undefined);
+expectType<undefined>(undefinedRef.current);
+undefinedRef.current = undefined;
+// @ts-expect-error Inferred undefined refs do not accept other values.
+undefinedRef.current = 1;
+
+const optionalRef = useRef<number>(undefined);
+expectType<number | undefined>(optionalRef.current);
+optionalRef.current = 1;
+optionalRef.current = undefined;
+// @ts-expect-error Undefined initialization does not add null.
+optionalRef.current = null;
+
+const explicitOptionalRef = useRef<Model | undefined>(undefined);
+expectType<Model | undefined>(explicitOptionalRef.current);
+explicitOptionalRef.current = raw;
+explicitOptionalRef.current = undefined;
+
+// @ts-expect-error Strict refs require an initializer, as React 19 does.
+useRef();
