@@ -19,5 +19,6 @@ export {
   useReducer,
   useRef,
   useState,
+  useSyncExternalStore,
   useTransition,
 } from "./react-hooks.js";

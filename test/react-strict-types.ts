@@ -1,6 +1,7 @@
 import type { Dispatch, DispatchWithoutAction, SetStateAction } from "react";
 import {
   stable,
+  createStableContext,
   useCallback,
   useEffect,
   useImperativeHandle,
@@ -10,6 +11,7 @@ import {
   useReducer,
   useRef,
   useState,
+  useSyncExternalStore,
   type Stable,
   type StableDeps,
 } from "../src/react.js";
@@ -112,6 +114,7 @@ function useOptionalDependencies(dependencies?: StableDeps) {
   useImperativeHandle(undefined, () => proven, []);
   useImperativeHandle(undefined, () => proven, [proven, callback, true]);
   useImperativeHandle(undefined, () => proven, dependencies);
+  useImperativeHandle<Model, Model>(undefined, () => proven, dependencies);
   useImperativeHandle(undefined, () => proven, optionalStable);
   useImperativeHandle(undefined, () => proven, optionalEmpty);
   // @ts-expect-error Inferred imperative handles reject raw object dependencies.
@@ -120,6 +123,8 @@ function useOptionalDependencies(dependencies?: StableDeps) {
   useImperativeHandle(undefined, () => proven, [rawCallback]);
   // @ts-expect-error Optional imperative handle lists must contain stable objects.
   useImperativeHandle(undefined, () => proven, optionalObject);
+  // @ts-expect-error Explicit handle types must also reject optional raw lists.
+  useImperativeHandle<Model, Model>(undefined, () => proven, optionalObject);
   // @ts-expect-error Optional imperative handle lists must contain stable functions.
   useImperativeHandle(undefined, () => proven, optionalFunction);
   // @ts-expect-error Stable entries cannot hide an unstable optional dependency.
@@ -209,3 +214,33 @@ explicitOptionalRef.current = undefined;
 
 // @ts-expect-error Strict refs require an initializer, as React 19 does.
 useRef();
+
+// External-store snapshots derive their proof from React's snapshot contract.
+const subscribe = stable((_notify: () => void) => () => {});
+const snapshot = { id: 1 };
+const getSnapshot = () => snapshot;
+expectType<Stable<Model>>(useSyncExternalStore(subscribe, getSnapshot));
+expectType<Stable<Model>>(useSyncExternalStore<Model>(subscribe, getSnapshot));
+expectType<Stable<Model>>(useSyncExternalStore(subscribe, getSnapshot, undefined));
+expectType<Stable<Model>>(useSyncExternalStore(subscribe, getSnapshot, () => snapshot));
+expectType<number>(useSyncExternalStore(subscribe, () => 1));
+expectType<Stable<Model> | null>(useSyncExternalStore(subscribe, (): Model | null => snapshot));
+useEffect(() => {}, [useSyncExternalStore(subscribe, getSnapshot)]);
+const StoreContext = createStableContext<Model>(stable({ id: 0 }));
+const storeProvider: Parameters<typeof StoreContext.Provider>[0] = {
+  value: useSyncExternalStore(subscribe, getSnapshot),
+  children: null,
+};
+void storeProvider;
+// @ts-expect-error Subscription identity must be proven to avoid resubscriptions.
+useSyncExternalStore((_notify: () => void) => () => {}, getSnapshot);
+// @ts-expect-error Subscriptions must return an unsubscribe function.
+useSyncExternalStore(stable((_notify: () => void) => {}), getSnapshot);
+// @ts-expect-error Subscriptions receive a notification callback, not a number.
+useSyncExternalStore(stable((_notify: number) => () => {}), getSnapshot);
+// @ts-expect-error Snapshot getters have no required arguments.
+useSyncExternalStore(subscribe, (id: number) => ({ id }));
+// @ts-expect-error Server snapshots must match the client snapshot type.
+useSyncExternalStore(subscribe, getSnapshot, () => "different shape");
+// @ts-expect-error Server getters cannot require arguments.
+useSyncExternalStore(subscribe, getSnapshot, (id: number) => ({ id }));

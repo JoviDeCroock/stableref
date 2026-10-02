@@ -101,3 +101,14 @@ export const useTransition = React.useTransition as () => [
   boolean,
   Stable<React.TransitionStartFunction>,
 ];
+
+/**
+ * Brand a snapshot under React's cached-snapshot contract. The store must return
+ * the same immutable snapshot until its data changes; this hook does not cache
+ * an allocating getter. A stable subscription avoids unrelated resubscriptions.
+ */
+export const useSyncExternalStore = React.useSyncExternalStore as <T>(
+  subscribe: Stable<(onStoreChange: () => void) => () => void>,
+  getSnapshot: () => T,
+  getServerSnapshot?: () => NoInfer<T>,
+) => Stable<T>;

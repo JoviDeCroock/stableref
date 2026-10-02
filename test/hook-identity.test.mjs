@@ -20,6 +20,7 @@ test("strict React hooks preserve the original function references", () => {
   assert.equal(StrictReact.useState, React.useState);
   assert.equal(StrictReact.useReducer, React.useReducer);
   assert.equal(StrictReact.useRef, React.useRef);
+  assert.equal(StrictReact.useSyncExternalStore, React.useSyncExternalStore);
   assert.equal(StrictReact.useTransition, React.useTransition);
 });
 

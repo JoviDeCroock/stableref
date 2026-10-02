@@ -83,7 +83,7 @@ useMemo(() => raw.id, [raw]);
 
 The caret lands on the exact dependency, so a human reading it in their editor, or a coding agent reading it out of `tsc`, is told what to do next.
 
-The entry also brands the contracts already supplied by `useState`, `useReducer`, `useRef`, and `useTransition`.
+The entry also brands the contracts already supplied by `useState`, `useReducer`, `useRef`, `useTransition`, and `useSyncExternalStore`.
 
 ## React Compiler
 
@@ -131,6 +131,29 @@ import { stable } from "stableref/react";
 
 export const EMPTY_ITEMS = stable([] as Item[]);
 ```
+
+### External stores (React)
+
+`useSyncExternalStore` preserves React's original hook reference and returns `Stable<T>` from the external-store snapshot contract:
+
+```ts
+import { stable, useSyncExternalStore } from "stableref/react";
+import { store } from "./store";
+
+// At module scope; the store implements subscription cleanup and snapshot caching.
+const subscribe = stable((notify: () => void) => store.subscribe(notify));
+const getSnapshot = () => store.getSnapshot();
+
+function useStore() {
+  return useSyncExternalStore(subscribe, getSnapshot);
+}
+```
+
+The subscription callback must carry stability proof to avoid resubscribing on unrelated renders. Use `useCallback` when the subscription depends on component inputs. Snapshot getters do not need branded function identities or branded return values: their output receives proof from the hook's contract, as state does. Getter closures may capture reactive inputs; changing those inputs can invalidate the snapshot.
+
+The caller must satisfy [React's snapshot contract](https://react.dev/reference/react/useSyncExternalStore): return a cached, immutable snapshot while store data is unchanged, and a new snapshot when it changes. A stable getter function alone does not make fresh object allocations safe. This export adds no caching or runtime validation.
+
+The optional `getServerSnapshot` must return the client snapshot type and provide matching data on the server and during initial client hydration. Supply it for server rendering; omitting it is supported for client-only use. Types cannot verify caching, immutability, subscription cleanup behavior, or hydration consistency.
 
 ### Context
 

@@ -106,6 +106,7 @@ function useOptionalDependencies(dependencies?: StableDeps) {
   useImperativeHandle(setHandle, () => proven, []);
   useImperativeHandle(setHandle, () => proven, [proven, callback, true]);
   useImperativeHandle(setHandle, () => proven, dependencies);
+  useImperativeHandle<Model, Model>(setHandle, () => proven, dependencies);
   useImperativeHandle(setHandle, () => proven, optionalStable);
   useImperativeHandle(setHandle, () => proven, optionalEmpty);
   // @ts-expect-error Inferred imperative handles reject raw object dependencies.
@@ -114,6 +115,8 @@ function useOptionalDependencies(dependencies?: StableDeps) {
   useImperativeHandle(setHandle, () => proven, [rawCallback]);
   // @ts-expect-error Optional imperative handle lists must contain stable objects.
   useImperativeHandle(setHandle, () => proven, optionalObject);
+  // @ts-expect-error Explicit handle types must also reject optional raw lists.
+  useImperativeHandle<Model, Model>(setHandle, () => proven, optionalObject);
   // @ts-expect-error Optional imperative handle lists must contain stable functions.
   useImperativeHandle(setHandle, () => proven, optionalFunction);
   // @ts-expect-error Stable entries cannot hide an unstable optional dependency.
