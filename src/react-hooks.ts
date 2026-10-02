@@ -87,12 +87,15 @@ export const useReducer: StrictReducerHook =
   React.useReducer as StrictReducerHook;
 
 type StrictRefHook = {
-  <T>(initialValue: T): Stable<React.RefObject<T>>;
+  <T>(initialValue: T): Stable<{ current: T }>;
   <T>(initialValue: T | null): Stable<React.RefObject<T | null>>;
-  <T>(initialValue: T | undefined): Stable<React.RefObject<T | undefined>>;
+  <T>(initialValue: T | undefined): Stable<{ current: T | undefined }>;
 };
 
-export const useRef: StrictRefHook = React.useRef as StrictRefHook;
+// Keep React 18's native overloads compatible with the assertion, but expose
+// only the strict signature so unbranded return types cannot escape.
+export const useRef: StrictRefHook =
+  React.useRef as typeof React.useRef & StrictRefHook;
 
 export const useTransition = React.useTransition as () => [
   boolean,
